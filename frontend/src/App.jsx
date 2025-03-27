@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom"; 
-import Layout from "./components/Layout"; // Import Layout
+import Layout from "./components/Layout"; 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -16,12 +16,12 @@ import ViewTasks from "./pages/ViewTasks";
 import Profile from "./pages/Profile";
 import AllUsers from "./pages/AllUsers";
 import DetailedProject from "./pages/DetailedProject";
-import { useAuth } from "./context/AuthContext"; // Import useAuth to get user role
+import { useAuth } from "./context/AuthContext"; 
 import Chat from "./components/Chat";
 import MeetingList from "./pages/MeetingList";
 
 function App() {
-  const { user } = useAuth(); // Get logged-in user details
+  const { user } = useAuth(); 
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
 
@@ -81,7 +81,6 @@ function App() {
         <Route path="/detailed-project" element={<DetailedProject />} />
         <Route path="/projects" element={user?.role ? <ProjectList projects={projects} /> : <Navigate to="/" />} />
         <Route path="/add-project" element={user?.role === "Manager" ? <AddProject addProject={addProject} /> : <Navigate to="/dashboard" />} />
-        {/* <Route path="/edit-project/:id" element={user?.role === "Manager" ? <EditProject projects={projects} updateProject={updateProject} /> : <Navigate to="/dashboard" />} /> */}
         <Route path="/edit-project/:id" element={user?.role === "Manager" ? <EditProject /> : <Navigate to="/dashboard" />} />
         <Route path="/add-task/:projectId" element={user?.role === "Project Leader" ? <AddTask addTask={addTask} /> : <Navigate to="/dashboard" />} />
         <Route path="/tasks/:projectId" element={user?.role ? <TaskList deleteTask={deleteTask} /> : <Navigate to="/" />} />
