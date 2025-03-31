@@ -1,0 +1,15 @@
+backend/src/controllers/projectController.js
+
+backend/src/routes/projectRoutes.js
+
+frontend/src/context/projectContext.js
+
+frontend/src/pages/DetailedProject.jsx (added new page)
+
+frontend/src/pages/ProjectList.jsx
+
+frontend/src/App.jsx
+
+
+
+

@@ -8,12 +8,37 @@ const AddProject = () => {
   const [description, setDescription] = useState("");
   const [deadline, setDeadline] = useState("");
   const [selectedLeader, setSelectedLeader] = useState("");
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]); // multiple file upload
   const [success, setSuccess] = useState(false);
 
   const { leaders, createProject, loadingLeaders } = useProject();
   const { darkMode } = useTheme();
   const navigate = useNavigate();
+
+  // multiple file upload
+  const allowedFileTypes = [
+    "text/plain", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/sql", "image/png", "image/jpeg"
+  ];
+
+  // multiple file upload
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    const filteredFiles = selectedFiles.filter(file => allowedFileTypes.includes(file.type));
+  
+    if (filteredFiles.length !== selectedFiles.length) {
+      alert("Some files were not accepted due to invalid file type.");
+    }
+  
+    setFiles(prevFiles => [...prevFiles, ...filteredFiles]); // Append new files to existing files
+  };
+  
+  const handleRemoveFile = (index) => {
+    setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +53,10 @@ const AddProject = () => {
     formData.append("description", description || "");
     formData.append("projectLeader", selectedLeader);
     formData.append("deadline", deadline);
-    if (file) formData.append("file", file);
+    // if (file) formData.append("file", file);
+
+    // multiple file upload
+    files.forEach((file) => formData.append("files", file));
 
     const success = await createProject(formData);
     if (success) {
@@ -97,15 +125,60 @@ const AddProject = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium">Upload File</label>
-          <input
-            type="file"
-            className={`w-full p-2 border rounded bg-transparent outline-none transition-colors ${
-              darkMode ? "border-gray-700 text-white" : "border-gray-300 text-black"
-            }`}
-            onChange={(e) => setFile(e.target.files[0])}
-          />
+          <label className="block text-sm font-medium">Upload Files</label>
+          
+          {/* Upload File Button (Only shown when no file is selected) */}
+          {files.length === 0 && (
+            <label 
+              className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition inline-block"
+            >
+              Upload File
+              <input
+                type="file"
+                accept={allowedFileTypes.join(",")}
+                multiple
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+          )}
+
+          {/* Display selected files with remove button */}
+          {files.length > 0 && (
+            <div className="mt-2">
+              <ul className="list-none">
+                {files.map((file, index) => (
+                  <li key={index} className="flex justify-between items-center bg-gray-200 px-3 py-2 rounded mt-1">
+                    <span className="text-sm">{file.name}</span>
+                    <button 
+                      onClick={() => handleRemoveFile(index)} 
+                      className="text-red-500 hover:text-red-700 text-lg font-bold"
+                    >
+                      ❌
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Add More Files Button (Shown if at least one file is selected) */}
+          {files.length > 0 && (
+            <label 
+              className="cursor-pointer bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700 transition mt-2 inline-block"
+            >
+              Add More Files
+              <input
+                type="file"
+                accept={allowedFileTypes.join(",")}
+                multiple
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+          )}
         </div>
+
 
         <div className="mb-4">
           <label className="block text-sm font-medium">Deadline</label>

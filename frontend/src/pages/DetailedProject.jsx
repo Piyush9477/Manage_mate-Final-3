@@ -19,7 +19,7 @@ const DetailedProject = () => {
         return <p className={`p-8 ${darkMode ? "text-white" : "text-black"}`}>Loading project details...</p>;
     }
 
-    const { name, description, managerId, projectLeader, deadline, status, file } = projectDetails.projectData;
+    const { name, description, managerId, projectLeader, deadline, status, files } = projectDetails.projectData;
     const tasks = projectDetails.taskData || [];
 
     return (
@@ -34,15 +34,31 @@ const DetailedProject = () => {
             <p><strong>Assigned to:</strong> {projectLeader?.name}</p>
             <p><strong>Deadline:</strong> {new Date(deadline).toLocaleDateString()}</p>
             <p><strong>Status:</strong> {status}</p>
-            {file && (
-                <p>
-                    <strong>Files:</strong> 
-                    <a href={`http://localhost:5001${file}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-                        Download
-                    </a>
-                </p>
+
+            {/* Multiple File Download Links */}
+            {files?.length > 0 && (
+                <div className="mt-2">
+                    <strong>Attachments:</strong>
+                    <ul className="list-disc list-inside mt-1">
+                    {files.map((file, index) => {
+                        const fileName = file.split("-").slice(1).join("-"); // Extract the original filename
+                        return (
+                        <li key={index}>
+                            <a
+                            href={`http://localhost:5001${file}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:underline"
+                            >
+                            {fileName}
+                            </a>
+                        </li>
+                        );
+                    })}
+                    </ul>
+                </div>
             )}
-            
+
             <h2 className="text-xl font-bold mt-6">Tasks</h2>
             <table className={`table-auto w-full mt-4 border-collapse border ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
                 <thead>

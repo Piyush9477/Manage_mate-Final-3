@@ -10,7 +10,9 @@ const createProject = async (req, res) => {
 
         const { name, description, projectLeader, deadline } = req.body;
         const formattedDeadline = new Date(deadline);
-        const fileUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+        // multiple file upload
+        const fileUrls = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
 
         const project = new Project({
             name,
@@ -18,7 +20,7 @@ const createProject = async (req, res) => {
             managerId: req.user.id,
             projectLeader,
             deadline: formattedDeadline,
-            file: fileUrl,
+            files: fileUrls, // multiple file upload
         });
 
         await project.save();
@@ -35,11 +37,11 @@ const getProjects = async (req, res) => {
         if (req.user.role === "Manager") {
             projects = await Project.find({ managerId: req.user.id })
                 .populate("projectLeader", "name _id")
-                .select("name description projectLeader deadline file status"); // ✅ Include "file"
+                .select("name description projectLeader deadline files status"); 
         } else if (req.user.role === "Project Leader") {
             projects = await Project.find({ projectLeader: req.user.id })
                 .populate("managerId projectLeader", "name _id")
-                .select("name description projectLeader deadline file status"); // ✅ Include "file"
+                .select("name description projectLeader deadline files status"); 
         } else {
             return res.status(403).json({ message: "Access Denied" });
         }
@@ -103,6 +105,44 @@ const updateProject = async (req, res) => {
         res.status(500).json({ message: "Server Error", err });
     }
 };
+// const updateProject = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const { name, description, projectLeader, deadline } = req.body;
+
+//         // Format deadline if provided
+//         const formattedDeadline = deadline ? new Date(deadline) : undefined;
+
+//         // Retrieve existing project
+//         const existingProject = await Project.findById(id);
+//         if (!existingProject) {
+//             return res.status(404).json({ message: "Project not found" });
+//         }
+
+//         // If new files are uploaded, add them to the existing list
+//         const newFiles = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+
+//         // Merge existing files with new ones
+//         const updatedFiles = [...existingProject.files, ...newFiles];
+
+//         // Update the project
+//         const updatedProject = await Project.findByIdAndUpdate(
+//             id,
+//             {
+//                 name,
+//                 description,
+//                 projectLeader,
+//                 deadline: formattedDeadline,
+//                 files: updatedFiles, // Update files array
+//             },
+//             { new: true }
+//         );
+
+//         res.json(updatedProject);
+//     } catch (err) {
+//         res.status(500).json({ message: "Server Error", error: err.message });
+//     }
+// };
 
 
 module.exports = { createProject, getProjects, getDetailedProjects, getProjectLeaders, updateProject };

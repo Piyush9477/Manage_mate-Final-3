@@ -6,27 +6,26 @@ const EditProject = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { projects, updateProject } = useProject();
-  const [leaders, setLeaders] = useState([]);  // ✅ Define `leaders`
+  const [leaders, setLeaders] = useState([]);
   
-  const projectToEdit = projects.find((project) => project._id === id);
-  
-  if (!projects || projects.length === 0) {
-    return <p className="text-red-500">Loading projects...</p>;
-  }
-
-  if (!projectToEdit) {
-    return <p className="text-red-500">Project not found!</p>;
-  }
-
-  const [projectName, setProjectName] = useState(projectToEdit.name || "");
-  const [description, setDescription] = useState(projectToEdit.description || "");
-  const [deadline, setDeadline] = useState(
-    projectToEdit.deadline ? new Date(projectToEdit.deadline).toISOString().split("T")[0] : ""
-  );
-  const [selectedLeader, setSelectedLeader] = useState(projectToEdit.projectLeader?._id || "");
+  const [projectName, setProjectName] = useState("");
+  const [description, setDescription] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [selectedLeader, setSelectedLeader] = useState("");
   const [success, setSuccess] = useState(false);
+  
+  useEffect(() => {
+    const projectToEdit = projects.find((project) => project._id === id);
+    if (projectToEdit) {
+      setProjectName(projectToEdit.name || "");
+      setDescription(projectToEdit.description || "");
+      setDeadline(
+        projectToEdit.deadline ? new Date(projectToEdit.deadline).toISOString().split("T")[0] : ""
+      );
+      setSelectedLeader(projectToEdit.projectLeader?._id || "");
+    }
+  }, [id, projects]);
 
-  // ✅ Fetch Project Leaders
   useEffect(() => {
     const fetchLeaders = async () => {
       try {
@@ -38,7 +37,6 @@ const EditProject = () => {
         if (!response.ok) throw new Error("Failed to fetch leaders");
 
         const data = await response.json();
-        console.log("Fetched leaders:", data);
         setLeaders(data);
       } catch (error) {
         console.error("Error fetching leaders:", error.message);
@@ -50,9 +48,14 @@ const EditProject = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const updatedProject = { ...projectToEdit, name: projectName, description, projectLeader: selectedLeader, deadline };
+    const updatedProject = {
+      name: projectName,
+      description,
+      projectLeader: selectedLeader,
+      deadline,
+    };
 
-    const success = await updateProject(updatedProject);
+    const success = await updateProject(id, updatedProject);
     if (success) {
       setSuccess(true);
       setTimeout(() => {
@@ -83,7 +86,6 @@ const EditProject = () => {
             className="w-full p-2 border rounded"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            required
           ></textarea>
         </div>
         <div className="mb-4">

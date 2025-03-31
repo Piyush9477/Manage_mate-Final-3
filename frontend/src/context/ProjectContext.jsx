@@ -122,9 +122,9 @@ export const ProjectProvider = ({children}) => {
     };
     
     //edit project
-    const updateProject = async (updatedProject) => {
+    const updateProject = async (id, updatedProject) => {
         try {
-          const response = await fetch(`${projectAPI}/updateProject/${updatedProject._id}`, {
+          const response = await fetch(`${projectAPI}/updateProject/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             credentials: "include",

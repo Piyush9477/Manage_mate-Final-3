@@ -67,19 +67,28 @@ const ProjectList = () => {
                 <strong>Status:</strong> {project.status}
               </p>
 
-              {/* File Download Link for Project Leader */}
-              {project.file && (
-                <p className="text-sm mt-2">
-                  <strong>Attachment:</strong>{" "}
-                  <a
-                    href={`http://localhost:5001${project.file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 underline hover:text-blue-500 transition"
-                  >
-                    Download File
-                  </a>
-                </p>
+              {/* Multiple files Download Link for Project Leader */}
+              {project.files?.length > 0 && (
+                <div className="mt-2">
+                  <strong>Attachments:</strong>
+                  <ul className="list-disc list-inside mt-1">
+                    {project.files.map((file, index) => {
+                      const fileName = file.split("-").slice(1).join("-"); // Extract the original filename
+                      return (
+                        <li key={index}>
+                          <a
+                            href={`http://localhost:5001${file}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 underline hover:text-blue-500 transition"
+                          >
+                            {fileName}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               )}
 
               {/* Show "Edit Project" button only for Managers */}

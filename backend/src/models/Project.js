@@ -8,7 +8,7 @@ const projectSchema = new mongoose.Schema({
     deadline: { type: Date, required: true }, 
     tasks: [{type: mongoose.Schema.Types.ObjectId, ref: "Task"}],
     status: {type: String, enum: ["Not Started", "In Progress", "Completed"], default: "Not Started"},
-    file: { type: String },
+    files: [{ type: String }], // multiple file upload
 });
 
 module.exports = mongoose.model("Project", projectSchema);
