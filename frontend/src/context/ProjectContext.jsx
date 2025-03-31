@@ -122,28 +122,67 @@ export const ProjectProvider = ({children}) => {
     };
     
     //edit project
-    const updateProject = async (id, updatedProject) => {
+    // const updateProject = async (id, updatedProject) => {
+    //     try {
+    //       const response = await fetch(`${projectAPI}/updateProject/${id}`, {
+    //         method: "PUT",
+    //         headers: { "Content-Type": "application/json" },
+    //         credentials: "include",
+    //         body: JSON.stringify(updatedProject),
+    //       });
+    //       if (!response.ok) {
+    //         const errorData = await response.json();
+    //         throw new Error(errorData.message || "Project update failed");
+    //       }
+    //       const data = await response.json();
+    //       setProjects((prevProjects) =>
+    //         prevProjects.map((project) => (project._id === data._id ? data : project))
+    //       );
+    //       return true;
+    //     } catch (error) {
+    //       console.error("Error updating project:", error.message);
+    //       return false;
+    //     }
+    //   };
+
+    const updateProject = async (id, updatedProject, files) => {
         try {
-          const response = await fetch(`${projectAPI}/updateProject/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify(updatedProject),
-          });
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Project update failed");
-          }
-          const data = await response.json();
-          setProjects((prevProjects) =>
-            prevProjects.map((project) => (project._id === data._id ? data : project))
-          );
-          return true;
+            const formData = new FormData();
+            formData.append("name", updatedProject.name);
+            formData.append("description", updatedProject.description);
+            formData.append("projectLeader", updatedProject.projectLeader);
+            formData.append("deadline", updatedProject.deadline);
+    
+            // Append files to FormData
+            if (files) {
+                for (let i = 0; i < files.length; i++) {
+                    formData.append("files", files[i]);
+                }
+            }
+    
+            const response = await fetch(`${projectAPI}/updateProject/${id}`, {
+                method: "PUT",
+                credentials: "include",
+                body: formData, // Send FormData
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Project update failed");
+            }
+    
+            const data = await response.json();
+            setProjects((prevProjects) =>
+                prevProjects.map((project) => (project._id === data._id ? data : project))
+            );
+    
+            return true;
         } catch (error) {
-          console.error("Error updating project:", error.message);
-          return false;
+            console.error("Error updating project:", error.message);
+            return false;
         }
-      };
+    };
+    
       
     useEffect(() => {
         const fetchData = async () => {

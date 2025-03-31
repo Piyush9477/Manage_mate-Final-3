@@ -88,61 +88,56 @@ const getProjectLeaders = async (req, res) => {
     }
 };
 
+// const updateProject = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const { name, description, projectLeader, deadline } = req.body;
+//         const updatedProject = await Project.findByIdAndUpdate(
+//             id,
+//             { name, description, projectLeader, deadline },
+//             { new: true }
+//         );
+//         if (!updatedProject) {
+//             return res.status(404).json({ message: "Project not found" });
+//         }
+//         res.json(updatedProject);
+//     } catch (err) {
+//         res.status(500).json({ message: "Server Error", err });
+//     }
+// };
+
 const updateProject = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, description, projectLeader, deadline } = req.body;
-        const updatedProject = await Project.findByIdAndUpdate(
-            id,
-            { name, description, projectLeader, deadline },
-            { new: true }
-        );
-        if (!updatedProject) {
+
+        // Find existing project
+        const existingProject = await Project.findById(id);
+        if (!existingProject) {
             return res.status(404).json({ message: "Project not found" });
         }
+
+        // Keep existing files and add new ones
+        const existingFiles = existingProject.files || [];
+        const newFiles = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+
+        const updatedProject = await Project.findByIdAndUpdate(
+            id,
+            {
+                name,
+                description,
+                projectLeader,
+                deadline,
+                files: [...existingFiles, ...newFiles], // Append new files
+            },
+            { new: true }
+        );
+
         res.json(updatedProject);
     } catch (err) {
         res.status(500).json({ message: "Server Error", err });
     }
 };
-// const updateProject = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { name, description, projectLeader, deadline } = req.body;
-
-//         // Format deadline if provided
-//         const formattedDeadline = deadline ? new Date(deadline) : undefined;
-
-//         // Retrieve existing project
-//         const existingProject = await Project.findById(id);
-//         if (!existingProject) {
-//             return res.status(404).json({ message: "Project not found" });
-//         }
-
-//         // If new files are uploaded, add them to the existing list
-//         const newFiles = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
-
-//         // Merge existing files with new ones
-//         const updatedFiles = [...existingProject.files, ...newFiles];
-
-//         // Update the project
-//         const updatedProject = await Project.findByIdAndUpdate(
-//             id,
-//             {
-//                 name,
-//                 description,
-//                 projectLeader,
-//                 deadline: formattedDeadline,
-//                 files: updatedFiles, // Update files array
-//             },
-//             { new: true }
-//         );
-
-//         res.json(updatedProject);
-//     } catch (err) {
-//         res.status(500).json({ message: "Server Error", error: err.message });
-//     }
-// };
 
 
 module.exports = { createProject, getProjects, getDetailedProjects, getProjectLeaders, updateProject };

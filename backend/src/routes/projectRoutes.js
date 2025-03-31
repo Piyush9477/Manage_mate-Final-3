@@ -47,7 +47,9 @@ router.post("/createProject", authMiddleware, upload.array("files", 10), createP
 router.get("/", authMiddleware, getProjects);
 router.get("/details/:projectId", authMiddleware, getDetailedProjects);
 router.get("/leaders", authMiddleware, getProjectLeaders);
-router.put("/updateProject/:id", authMiddleware, updateProject);
+// router.put("/updateProject/:id", authMiddleware, updateProject);
+router.put("/updateProject/:id", authMiddleware, upload.array("files", 10), updateProject);
+
 
 module.exports = router;
 
